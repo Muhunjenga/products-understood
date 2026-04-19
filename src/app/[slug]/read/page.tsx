@@ -28,33 +28,51 @@ function ChapterNav({ chapters }: { chapters: { id: string; label: string }[] })
   const [activeId, setActiveId] = useState(chapters[0]?.id ?? "");
 
   useEffect(() => {
-    const observers: IntersectionObserver[] = [];
-    chapters.forEach(({ id }) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const obs = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) setActiveId(id); },
-        { rootMargin: "-20% 0px -70% 0px" }
-      );
-      obs.observe(el);
-      observers.push(obs);
-    });
-    return () => observers.forEach((o) => o.disconnect());
+    const update = () => {
+      const threshold = window.innerHeight * 0.3;
+      let current = chapters[0]?.id ?? "";
+      for (const { id } of chapters) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= threshold) current = id;
+      }
+      setActiveId(current);
+    };
+
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    return () => window.removeEventListener("scroll", update);
   }, [chapters]);
 
   return (
-    <nav style={{ position: "sticky", top: 80, width: 160, flexShrink: 0, paddingRight: 24 }}>
-      <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 14 }}>
-        {chapters.map(({ id, label }) => (
-          <li key={id}>
-            <a href={`#${id}`} style={{
-              display: "block", fontSize: 11,
-              fontFamily: '"Inter", system-ui, sans-serif',
-              color: activeId === id ? "#ffffff" : "#71717a",
-              textDecoration: "none", lineHeight: 1.5, transition: "color 200ms ease",
-            }}>{label}</a>
-          </li>
-        ))}
+    <nav style={{ position: "sticky", top: 80, width: 160, flexShrink: 0 }}>
+      <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 2 }}>
+        {chapters.map(({ id, label }) => {
+          const isActive = activeId === id;
+          return (
+            <li key={id} style={{ display: "flex", alignItems: "stretch" }}>
+              <div style={{
+                width: 2, flexShrink: 0, borderRadius: 1, marginRight: 10,
+                background: isActive ? "#ffffff" : "rgba(255,255,255,0.1)",
+                transition: "background 200ms ease",
+              }} />
+              <a
+                href={`#${id}`}
+                style={{
+                  flex: 1, padding: "6px 0",
+                  fontSize: 11,
+                  fontFamily: '"Inter", system-ui, sans-serif',
+                  color: isActive ? "#ffffff" : "#71717a",
+                  textDecoration: "none",
+                  lineHeight: 1.45,
+                  transition: "color 200ms ease",
+                  fontWeight: isActive ? 500 : 400,
+                }}
+              >
+                {label}
+              </a>
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );

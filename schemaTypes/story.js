@@ -54,7 +54,7 @@ export const story = defineType({
           {title: 'B2B', value: 'B2B'},
           {title: 'Fintech', value: 'Fintech'},
         ],
-        layout: 'tags',
+        layout: 'grid',
       },
     }),
     defineField({
