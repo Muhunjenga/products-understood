@@ -4,7 +4,7 @@ import { Nav } from "@/components/Nav";
 import { StoryCard } from "@/components/StoryCard";
 import { StoryCard as StoryCardType } from "@/lib/queries";
 import Image from "next/image";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 
 function WritingText({ text }: { text: string }) {
   const words = text.split(" ");
@@ -46,7 +46,14 @@ function SearchIcon() {
   );
 }
 
-const CATEGORIES = ["All", "Consumer Products", "Developer Tools", "Design", "B2B", "Fintech"];
+function InboxIcon() {
+  return (
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+      <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+    </svg>
+  );
+}
 
 export default function HomePage() {
   const [stories, setStories] = useState<StoryCardType[]>([]);
@@ -54,6 +61,12 @@ export default function HomePage() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [storiesVisible, setStoriesVisible] = useState(false);
   const storiesRef = useRef<HTMLElement>(null);
+
+  const categories = useMemo(() => {
+    const cats = new Set<string>();
+    stories.forEach((s) => s.categories?.forEach((c) => cats.add(c)));
+    return ["All", ...Array.from(cats).sort()];
+  }, [stories]);
 
   useEffect(() => {
     fetch("/api/stories")
@@ -194,8 +207,8 @@ export default function HomePage() {
 
           {/* Category tabs */}
           <div style={{ display: "flex", justifyContent: "center", marginTop: 28 }}>
-            <div className="content-block stories-categories" style={{ width: 1041, display: "flex", gap: 8 }}>
-              {CATEGORIES.map((cat) => (
+            <div className="content-block stories-categories" style={{ width: 1041, display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {categories.map((cat) => (
                 <button
                   key={cat}
                   className="category-tab"
@@ -231,9 +244,27 @@ export default function HomePage() {
                     </div>
                   ))
                 ) : (
-                  <p style={{ color: "#71717a", fontSize: 14, fontFamily: '"Inter", system-ui, sans-serif', paddingTop: 8 }}>
-                    No stories match &ldquo;{query}&rdquo;
-                  </p>
+                  <div style={{
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "64px 24px",
+                    gap: 16,
+                  }}>
+                    <InboxIcon />
+                    <div style={{ textAlign: "center" }}>
+                      <p style={{ color: "rgba(255,255,255,0.88)", fontSize: 15, fontFamily: '"Inter", system-ui, sans-serif', fontWeight: 500, margin: "0 0 6px" }}>
+                        {activeCategory === "All" ? "No stories found" : `No stories in "${activeCategory}"`}
+                      </p>
+                      <p style={{ color: "#71717a", fontSize: 13, fontFamily: '"Inter", system-ui, sans-serif', margin: 0 }}>
+                        {activeCategory === "All"
+                          ? `No stories match "${query}"`
+                          : "Try a different category or check back soon."}
+                      </p>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
