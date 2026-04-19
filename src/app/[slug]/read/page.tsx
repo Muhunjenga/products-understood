@@ -57,6 +57,7 @@ function ChapterNav({ chapters }: { chapters: { id: string; label: string }[] })
               }} />
               <a
                 href={`#${id}`}
+                onClick={() => setActiveId(id)}
                 style={{
                   flex: 1, padding: "6px 0",
                   fontSize: 11,

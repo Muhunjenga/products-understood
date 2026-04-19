@@ -23,6 +23,11 @@
 html {
   height: 100%;
   background: #060201;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
 }
 
 body {
