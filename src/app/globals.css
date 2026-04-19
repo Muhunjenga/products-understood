@@ -1,26 +1,478 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --white: #ffffff;
+  --muted: #71717a;
+  --border: #333333;
+  --card-glass: rgba(255, 255, 255, 0.07);
+  --tag-figma: rgba(217, 102, 252, 0.2);
+  --progress-track: #454444;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+  background: #060201;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100%;
+  background: transparent;
+}
+
+body {
+  color: #ffffff;
+  font-family: "Geist", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Publication screen wrapper — the actual background image is a fixed <Image>
+   injected per-page. This class just ensures full coverage. */
+.bg-publication {
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Fixed full-page background image (Orange-Gradient-Background.png)
+   shared across all screens via a positioned wrapper */
+.bg-page-image {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+/* Font family utilities */
+.font-haas {
+  font-family: "Haas Grot Disp R Trial", Georgia, serif;
+}
+
+.font-geist {
+  font-family: "Geist", system-ui, sans-serif;
+}
+
+.font-inter {
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.font-sofia {
+  font-family: "Sofia Pro", "Inter", system-ui, sans-serif;
+  letter-spacing: 0.17px;
+}
+
+/* Pill button */
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 42px;
+  padding: 8px 12px 8px 19px;
+  border: 1px solid #333;
+  border-radius: 24px;
+  background: transparent;
+  color: #71717a;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: border-color 200ms ease, color 200ms ease;
+}
+
+.pill-btn:hover {
+  border-color: #555;
+  color: #a1a1aa;
+}
+
+/* Progress bar — amber glow fill */
+.progress-fill {
+  background: linear-gradient(90deg, #b45309 0%, #f59e0b 50%, #fbbf24 100%);
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+}
+
+/* Audio playhead glow */
+.playhead-glow {
+  box-shadow: 0 0 6px 2px rgba(251, 191, 36, 0.7);
+}
+
+/* Article body typography */
+.article-body h2 {
+  font-family: "Haas Grot Disp R Trial", Georgia, serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: #ffffff;
+  margin-top: 52px;
+  margin-bottom: 20px;
+  line-height: 1.3;
+  scroll-margin-top: 80px;
+}
+
+.article-body p {
+  margin-bottom: 20px;
+  color: rgba(255, 255, 255, 0.88);
+  font-family: "Geist", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.article-body em {
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.article-body strong {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.article-body p:first-child {
+  margin-top: 0;
+}
+
+/* ─── Homepage scroll animation ─── */
+
+/* Entrance animations for hero elements */
+@keyframes hero-reveal {
+  0%   { opacity: 0; transform: translateY(28px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes hero-fade {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Hero: sticky so the stories section slides up over it */
+.hero-section {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Nav wrapper — fades in first */
+.hero-nav {
+  position: relative;
+  z-index: 10;
+  animation: hero-fade 1.4s ease 0.1s both;
+}
+
+/* ── Positioning wrappers (absolute placement, no animation transforms) ── */
+.hero-headline-wrap {
+  position: absolute;
+  top: 47.6%;
+  left: 50%;
+  /* half letter-spacing offset so visual centre = geometric centre */
+  transform: translateX(calc(-50% + clamp(4px, 0.795vw, 11.47px)));
+  z-index: 5;
+}
+
+.hero-body-wrap {
+  position: absolute;
+  top: 72.9%;
+  right: 62px;
+  width: 464px;
+  z-index: 5;
+}
+
+.hero-cta-wrap {
+  position: absolute;
+  top: 90.7%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+}
+
+/* ── Animated content nodes (transform here = animation transform only) ── */
+
+/* Hero headline — Inter SemiBold, wide letter-spacing */
+.hero-headline {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: clamp(22px, 2.65vw, 38.222px);
+  font-weight: 600;
+  letter-spacing: clamp(8px, 1.59vw, 22.93px);
+  color: rgba(255, 255, 255, 0.84);
+  white-space: nowrap;
+  margin: 0;
+  display: block;
+  /* animation handled per-word by WritingText */
+}
+
+/* Hero body copy */
+.hero-body {
+  width: 464px;
+  font-family: "Geist", system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #71717a;
+  line-height: 1.625;
+  margin: 0;
+  animation: hero-reveal 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+}
+
+/* Hero CTA button */
+.hero-cta {
+  width: 146px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #333;
+  border-radius: 24px;
+  background: transparent;
+  color: #ffffff;
+  font-family: "Geist", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  cursor: pointer;
+  transition: border-color 200ms ease;
+  white-space: nowrap;
+  animation: hero-reveal 1s cubic-bezier(0.16, 1, 0.3, 1) 0.75s both;
+}
+
+.hero-cta:hover {
+  border-color: #555;
+}
+
+/* Stories section: z-index 2 so it slides OVER the hero — clean, no gradient */
+.stories-section {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #060201;
+}
+
+/* Fixed full-page version — used by PageBackground on audio + read pages */
+.page-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 40% 32% at 13% 9%, rgba(70, 22, 2, 0.52) 0%, rgba(28, 8, 1, 0.2) 45%, transparent 70%),
+    #060201;
+}
+
+.page-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.055;
+  pointer-events: none;
+}
+
+/* CSS dark-amber glow + film grain — replaces the image+overlay approach */
+.stories-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 40% 32% at 13% 9%, rgba(70, 22, 2, 0.52) 0%, rgba(28, 8, 1, 0.2) 45%, transparent 70%),
+    #060201;
+}
+
+/* Film grain via SVG feTurbulence noise overlay */
+.stories-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.055;
+  pointer-events: none;
+}
+
+/* StoryCard base dimensions — overridden on mobile via CSS */
+.story-card {
+  width: 235px;
+  height: 235px;
+}
+
+/* card-wrapper: flex-shrink: 0 on desktop so cards stay their natural size in the row */
+.card-wrapper {
+  flex-shrink: 0;
+}
+
+/* ── Stories section entrance animations ── */
+.stories-search-bar,
+.stories-categories,
+.stories-cards {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.stories-visible .stories-search-bar {
+  animation: hero-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+.stories-visible .stories-categories {
+  animation: hero-reveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+}
+
+.stories-visible .stories-cards {
+  animation: hero-reveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+}
+
+/* Category filter tabs */
+.category-tab {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  color: #71717a;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  background: transparent;
+  transition: background 150ms ease, color 150ms ease;
+  white-space: nowrap;
+}
+
+.category-tab:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.category-tab[data-active="true"] {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 600;
+}
+
+/* ─── Responsive layout classes ─── */
+
+/* Nav — base sizing, overridden on mobile */
+.nav-root { padding: 22px 66px 0; }
+.nav-logo  { font-size: 22px; }
+
+@media (max-width: 768px) {
+  /* Nav */
+  .nav-root { padding: 16px 20px 0; }
+  .nav-logo  { font-size: 16px; }
+
+  /* Hero section on mobile — centred stacked layout */
+  .hero-headline-wrap {
+    top: 40%;
+    left: 50%;
+    transform: translateX(calc(-50% + 4px));
+    width: calc(100% - 40px);
+  }
+
+  .hero-headline {
+    font-size: 18px;
+    letter-spacing: 8px;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .hero-body-wrap {
+    left: 20px;
+    right: 20px;
+    width: auto;
+    top: 58%;
+  }
+
+  .hero-body {
+    width: auto;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .hero-cta-wrap {
+    top: auto;
+    bottom: 8%;
+  }
+
+  /* Kill animations on mobile */
+  .hero-nav, .hero-headline, .hero-body, .hero-cta {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Homepage hero */
+  .hero-text {
+    width: 100% !important;
+    max-width: 100%;
+    padding: 0 20px;
+    margin-top: 28px !important;
+    box-sizing: border-box;
+  }
+
+  /* Homepage content block (search + cards) */
+  .content-block {
+    width: 100% !important;
+    max-width: 100%;
+    margin-top: 24px !important;
+    padding: 0 16px;
+    box-sizing: border-box;
+  }
+
+  /* Search full-width on mobile */
+  .search-input { width: 100% !important; }
+
+  /* Categories: horizontal scroll on mobile */
+  .stories-categories {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .stories-categories::-webkit-scrollbar { display: none; }
+
+  /* Cards: vertical stacked layout on mobile */
+  .cards-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    overflow-x: visible;
+    scroll-snap-type: none;
+    padding-bottom: 0;
+    margin-top: 20px !important;
+  }
+
+  /* Each card wrapper takes full width */
+  .card-wrapper {
+    width: 100%;
+  }
+
+  /* Card itself stretches full width, taller to allow breathing room */
+  .story-card {
+    width: 100% !important;
+    height: 260px !important;
+  }
+
+  /* Anchor content to bottom so padding is consistent regardless of title length */
+  .card-content {
+    top: auto !important;
+    bottom: 28px !important;
+  }
+
+  /* Player: similar stories */
+  .similar-stories-section {
+    padding: 0 16px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Read: hide sidebar entirely */
+  .chapter-sidebar { display: none !important; }
+  .read-body        { gap: 0 !important; }
 }
